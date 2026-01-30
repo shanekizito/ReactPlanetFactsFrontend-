@@ -24,7 +24,7 @@
 }
 
 .navbar-menu {
-  @apply fixed top-0 left-0 w-full h-screen bg-[#0b0d17]/85 backdrop-blur-md flex flex-col justify-center items-center gap-8 z-50 transition-all duration-700 lg:flex lg:flex-row lg:bg-transparent lg:static lg:h-auto lg:w-auto lg:gap-8 lg:scale-100 lg:backdrop-blur-none;
+  @apply fixed top-0 left-0 w-full h-screen bg-[rgba(11,13,23,0.85)] backdrop-blur-md flex flex-col justify-center items-center gap-8 z-50 transition-all duration-700 lg:flex lg:flex-row lg:bg-transparent lg:static lg:h-auto lg:w-auto lg:gap-8 lg:scale-100 lg:backdrop-blur-none;
 }
 
 .navbar-menu.open {

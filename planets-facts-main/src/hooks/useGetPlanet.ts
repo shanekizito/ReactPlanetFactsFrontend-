@@ -23,13 +23,14 @@ export const useGetPlanet = (planet: PLANET): States => {
         setData(null);
         setError(null);
         const res = await service.getPlanetData(planet);
+        if (!res) throw new Error(`Planet data for "${planet}" not found`);
         setData(res);
         setLoading(false);
-      } catch (error) {
-        console.log(error);
+      } catch (err: any) {
+        console.error("useGetPlanet error:", err);
         setLoading(false);
         setData(null);
-        setError(error);
+        setError(err);
       }
     };
 

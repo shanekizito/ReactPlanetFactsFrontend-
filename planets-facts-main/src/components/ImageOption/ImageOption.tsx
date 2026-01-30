@@ -1,9 +1,9 @@
 import { ChangeEventHandler } from "react";
-import "./image_option.css";
 
 interface Props {
   radioGroupName: string;
   id: string;
+  index: number;
   isChecked: boolean;
   handleChange: ChangeEventHandler;
 }
@@ -11,11 +11,12 @@ interface Props {
 export const ImageOption = ({
   radioGroupName,
   id,
+  index,
   isChecked,
   handleChange,
 }: Props) => {
   return (
-    <div>
+    <div className="w-full">
       <input
         type="radio"
         className="sr-only"
@@ -27,9 +28,11 @@ export const ImageOption = ({
       />
       <label
         htmlFor={id}
-        className="py-2 cursor-pointer block md:p-3 md:outline-checked"
+        className={`btn-nasa block cursor-pointer flex items-center gap-4 ${isChecked ? "bg-white bg-opacity-20 border-opacity-100" : ""
+          }`}
       >
-        <span className="option uppercase">{id}</span>
+        <span className="text-[10px] text-gray-500 font-black">0{index}</span>
+        <span className="uppercase text-xs tracking-[0.2em]">{id}</span>
       </label>
     </div>
   );

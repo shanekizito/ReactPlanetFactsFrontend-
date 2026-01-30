@@ -1,56 +1,47 @@
 import { PlanetsResponse } from "../../types/PlanetsResponse";
-import { FactBox } from "../FactBox/FactBox";
 
 export const PlanetFacts = ({ facts }: { facts: PlanetsResponse }) => {
   return (
-    <aside className="px-6 pb-6 flex flex-col gap-4 md:p-0 md:col-[1/2] lg:col-[2/-1] lg:row-[1/-1] lg:self-center">
-      <h1 className="text-4xl text-center font-bold md:mb-2">
-        {facts.englishName}
-      </h1>
-      <FactBox>
-        <>
-          <h3>Revolution Time</h3>
-          <p className="text-2xl font-bold">
+    <div className="grid grid-cols-1 gap-4">
+      <div className="holo-border bg-white bg-opacity-5 p-4 flex justify-between items-center group">
+        <div className="space-y-1">
+          <h3 className="text-[10px] text-gray-400 group-hover:text-holo-cyan transition-colors">Revolution</h3>
+          <p className="text-xl font-black">
             {Math.abs(facts.sideralOrbit) > 366
-              ? Number((Math.abs(facts.sideralOrbit) / 365).toFixed(2)) +
-                " years"
-              : Number(Math.abs(facts.sideralOrbit).toFixed(2)) + " days"}
+              ? Number((Math.abs(facts.sideralOrbit) / 365).toFixed(1)) + "Y"
+              : Number(Math.abs(facts.sideralOrbit).toFixed(0)) + "D"}
           </p>
-        </>
-      </FactBox>
-      <FactBox>
-        <>
-          <h3>Rotation Time</h3>
-          <p className="text-2xl font-bold">
+        </div>
+        <div className="w-24 h-1 bg-white bg-opacity-10 relative overflow-hidden">
+          <div className="absolute inset-0 bg-holo-cyan opacity-40 animate-[shimmer_2s_infinite]" style={{ width: '60%' }} />
+        </div>
+      </div>
+
+      <div className="holo-border bg-white bg-opacity-5 p-4 flex justify-between items-center group">
+        <div className="space-y-1">
+          <h3 className="text-[10px] text-gray-400 group-hover:text-holo-cyan transition-colors">Rotation</h3>
+          <p className="text-xl font-black">
             {Math.abs(facts.sideralRotation) > 25
-              ? Number((Math.abs(facts.sideralRotation) / 24).toFixed(2)) +
-                " days"
-              : Number(Math.abs(facts.sideralRotation).toFixed(2)) + " hours"}
+              ? Number((Math.abs(facts.sideralRotation) / 24).toFixed(1)) + "D"
+              : Number(Math.abs(facts.sideralRotation).toFixed(0)) + "H"}
           </p>
-        </>
-      </FactBox>
-      <FactBox>
-        <>
-          <h3>Average Temp</h3>
-          <p className="text-2xl font-bold">
-            {Number((facts.avgTemp - 273.15).toFixed(2))} <sup>º</sup>C
+        </div>
+        <div className="w-24 h-1 bg-white bg-opacity-10 relative overflow-hidden">
+          <div className="absolute inset-0 bg-holo-cyan opacity-40 animate-[shimmer_2s_infinite]" style={{ width: '40%' }} />
+        </div>
+      </div>
+
+      <div className="holo-border bg-white bg-opacity-5 p-4 flex justify-between items-center group">
+        <div className="space-y-1">
+          <h3 className="text-[10px] text-gray-400 group-hover:text-holo-cyan transition-colors">Thermal</h3>
+          <p className="text-xl font-black text-nasa-red">
+            {Number((facts.avgTemp - 273.15).toFixed(0))}°C
           </p>
-        </>
-      </FactBox>
-      <FactBox>
-        <>
-          <h3>Gravity</h3>
-          <p className="text-2xl font-bold">
-            {Number(facts.gravity.toFixed(2))} <sup>m</sup>&frasl;
-            <sub>
-              s
-              <small>
-                <sup>2</sup>
-              </small>{" "}
-            </sub>
-          </p>
-        </>
-      </FactBox>
-    </aside>
+        </div>
+        <div className="w-24 h-1 bg-white bg-opacity-10 relative overflow-hidden">
+          <div className="absolute inset-0 bg-nasa-red opacity-40 animate-[shimmer_2s_infinite]" style={{ width: '80%' }} />
+        </div>
+      </div>
+    </div>
   );
 };

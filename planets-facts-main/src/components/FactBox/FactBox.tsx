@@ -1,7 +1,7 @@
-import { ReactChild, ReactChildren } from "react";
+import { ReactNode } from "react";
 
 interface Props {
-  children: ReactChild | ReactChildren;
+  children: ReactNode;
 }
 
 export const FactBox = ({ children }: Props) => {

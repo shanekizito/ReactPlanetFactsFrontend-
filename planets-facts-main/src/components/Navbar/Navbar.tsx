@@ -40,18 +40,18 @@ export const Navbar = () => {
           <div className="h-0.5 w-6 bg-white transition-all"></div>
         </button>
 
-        <ul id="navbar-menu" className={`navbar-menu flex gap-8 items-center ${openLinks ? "open" : ""}`}>
+        <ul id="navbar-menu" className={`navbar-menu ${openLinks ? "open" : ""}`}>
           {LINKS.map((link, i) => (
             <li key={i} className="relative group">
               <Link
                 href={`/planet/${link}`}
-                className={`text-[9px] font-black uppercase tracking-[0.4em] transition-all duration-500 ${location === `/planet/${link}` ? "text-white" : "text-gray-500 hover:text-white"
+                className={`text-xl lg:text-[9px] font-black uppercase tracking-[0.2em] lg:tracking-[0.4em] transition-all duration-500 ${location === `/planet/${link}` ? "text-nasa-red lg:text-white" : "text-white/60 hover:text-white"
                   }`}
                 onClick={() => setOpenLinks(false)}
               >
                 {link.toUpperCase()}
               </Link>
-              <div className={`absolute -bottom-1 left-0 h-[1.5px] bg-nasa-red transition-all duration-500 ${location === `/planet/${link}` ? "w-full opacity-80" : "w-0 opacity-0 group-hover:w-1/2 group-hover:opacity-40"
+              <div className={`hidden lg:block absolute -bottom-1 left-0 h-[1.5px] bg-nasa-red transition-all duration-500 ${location === `/planet/${link}` ? "w-full opacity-80" : "w-0 opacity-0 group-hover:w-1/2 group-hover:opacity-40"
                 }`} />
             </li>
           ))}

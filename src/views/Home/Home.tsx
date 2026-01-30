@@ -9,9 +9,9 @@ const ResponsiveCamera = () => {
         const handleResize = () => {
             const width = window.innerWidth;
             if (width < 768) {
-                camera.position.set(0, 0, 6.5); // Further back on mobile
+                camera.position.set(0, 0, 5.5); // Closer on mobile (was 6.5)
             } else if (width < 1024) {
-                camera.position.set(0, 0, 5.5); // Tablet
+                camera.position.set(0, 0, 4.8); // Tablet
             } else {
                 camera.position.set(0, 0, 4); // Desktop
             }

@@ -1,9 +1,13 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState, Suspense } from "react";
 import { Link } from "wouter";
 import { Canvas, useThree } from "@react-three/fiber";
 import { PlanetSphere } from "../../components/PlanetSphere/PlanetSphere";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { nasaService } from "../../services/nasaService";
+import { VisualErrorBoundary } from "../../components/VisualErrorBoundary/VisualErrorBoundary";
+import { scienceModules } from "../../data/moduleData";
+import "./home.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,11 +18,11 @@ const ResponsiveCamera = () => {
         const handleResize = () => {
             const width = window.innerWidth;
             if (width < 768) {
-                camera.position.set(0, 0, 5.5); // Closer on mobile (was 6.5)
+                camera.position.set(0, 0, 16); // Mobile
             } else if (width < 1024) {
-                camera.position.set(0, 0, 4.8); // Tablet
+                camera.position.set(0, 0, 15); // Tablet
             } else {
-                camera.position.set(0, 0, 4); // Desktop
+                camera.position.set(0, 0, 14); // Desktop
             }
             camera.updateProjectionMatrix();
         };
@@ -34,6 +38,20 @@ const ResponsiveCamera = () => {
 export const Home = () => {
     const heroRef = useRef(null);
     const gridRef = useRef(null);
+    const [apodData, setApodData] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchNasaData = async () => {
+            try {
+                // Fetch APOD
+                const apod = await nasaService.getAPOD();
+                setApodData(apod);
+            } catch (error) {
+                console.error("Error fetching NASA data:", error);
+            }
+        };
+        fetchNasaData();
+    }, []);
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -45,19 +63,6 @@ export const Home = () => {
                 stagger: 0.2,
                 ease: "power3.out",
                 delay: 0.5
-            });
-
-            // Grid Animation
-            gsap.from(".hud-card", {
-                scrollTrigger: {
-                    trigger: gridRef.current,
-                    start: "top 80%",
-                },
-                y: 50,
-                opacity: 0,
-                duration: 0.8,
-                stagger: 0.1,
-                ease: "power2.out"
             });
 
             // Corner Brackets Animation
@@ -111,27 +116,47 @@ export const Home = () => {
                 <section ref={heroRef} className="min-h-[auto] lg:min-h-[80vh] flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
                     {/* 3D Planet Visualization */}
                     <div className="hero-anim w-full lg:w-1/2 h-[350px] lg:h-[550px] relative order-1 lg:order-none">
-                        <Canvas camera={{ position: [0, 0, 4], fov: 45 }}>
+                        <Canvas camera={{ position: [0, 0, 14], fov: 45 }}>
                             <ResponsiveCamera />
-                            <PlanetSphere />
+                            <Suspense fallback={null}>
+                                <VisualErrorBoundary fallback={<PlanetSphere />}>
+                                    <PlanetSphere
+                                        textureUrl="/sun.jpg"
+                                        color="#FDB813"
+                                        emissive="#bd3b00"
+                                        atmosphereColor="#ff4500"
+                                    />
+                                </VisualErrorBoundary>
+                            </Suspense>
                         </Canvas>
                     </div>
 
                     {/* Hero Content */}
                     <div className="w-full lg:w-1/2 space-y-6 lg:space-y-8 text-center lg:text-left order-2 lg:order-none">
-                        <div className="hero-anim flex items-center justify-center lg:justify-start gap-4 opacity-30">
-                            <div className="w-8 lg:w-12 h-[1px] bg-white/20" />
-                            <span className="text-[9px] font-mono tracking-[0.4em] lg:tracking-[0.8em] uppercase text-white/40">Exploration Hub</span>
-                            <div className="w-8 lg:w-12 h-[1px] bg-white/20" />
+                        <div className="hero-anim flex items-center justify-center lg:justify-start gap-4">
+                            <div className="w-8 lg:w-12 h-[1px] bg-nasa-red/50" />
+                            <div className="px-3 py-1 bg-nasa-red text-white text-[8px] font-black tracking-[0.3em] rounded-sm animate-pulse-fast">
+                                LIVE NASA DATA STREAM // ACTIVE
+                            </div>
+                            <div className="w-8 lg:w-12 h-[1px] bg-nasa-red/50" />
                         </div>
 
                         <h1 className="hero-anim text-5xl md:text-7xl lg:text-9xl font-black tracking-[-0.05em] leading-none text-white">
-                            ORBITAL<span className="text-white/40">.</span>
+                            {apodData?.title ? apodData.title.split(' ')[0].toUpperCase() : 'ORBITAL'}<span className="text-white/40">.</span>
                         </h1>
 
                         <p className="hero-anim text-sm md:text-base lg:text-lg font-light text-white/50 max-w-xl mx-auto lg:mx-0 tracking-wide px-4 lg:px-0">
-                            Explore the cosmos through interactive scientific modules and real-time 3D visualizations.
+                            {apodData?.explanation
+                                ? apodData.explanation.split('.').slice(0, 2).join('.') + '.'
+                                : 'Explore the cosmos through interactive scientific modules and real-time 3D visualizations.'}
                         </p>
+
+                        {apodData?.copyright && (
+                            <div className="hero-anim flex items-center gap-3 text-[9px] font-mono text-holo-cyan uppercase tracking-[0.2em] border border-holo-cyan/20 p-3 bg-holo-cyan/5 rounded-sm">
+                                <div className="w-1.5 h-1.5 bg-holo-cyan rounded-full animate-pulse" />
+                                <span>SOURCE: {apodData.copyright} // NASA APOD PIPELINE RECON</span>
+                            </div>
+                        )}
 
                         <div className="hero-anim flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
                             <Link href="/planet/earth" className="btn-nasa active rounded-sm text-xs lg:text-sm py-4 px-10">
@@ -145,197 +170,58 @@ export const Home = () => {
                 </section>
 
                 {/* Learning Modules Grid */}
-                <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
-                    {/* Section 01: Solar System */}
-                    <Link
-                        href="/planet/earth"
-                        className="hud-card group block cursor-pointer hover:bg-white/[0.02] transition-all duration-300"
-                        onMouseEnter={handleHover}
-                        onMouseLeave={handleHoverExit}
-                    >
-                        <div className="corner-brkt corner-brkt-tl" />
-                        <h3 className="text-holo-cyan text-[10px] mb-4 tracking-[0.4em] uppercase opacity-60">Module 01 // Discovery</h3>
-                        <h2 className="text-3xl font-black mb-4 group-hover:text-white transition-colors break-words">Planetary Systems</h2>
-                        <p className="text-xs text-gray-400 font-light leading-relaxed mb-6">
-                            In-depth telemetry and geological analysis of the eight major planets. Explore surface conditions, atmosphere composition, and orbital history.
-                        </p>
-                        <div className="text-[9px] font-semibold tracking-wider text-white/30 group-hover:text-white/60 uppercase transition-colors">
-                            Access Databases {"//"}
-                        </div>
-                    </Link>
+                <div ref={gridRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mt-12 pb-24">
+                    {/* Dynamic Module Cards */}
+                    {Object.values(scienceModules).map((module, index) => (
+                        <Link
+                            key={module.id}
+                            href={`/module/${module.id}`}
+                            className="module-card group relative block cursor-pointer bg-black/40 border border-white/10 hover:border-holo-cyan/50 transition-colors duration-300 overflow-hidden"
+                            onMouseEnter={handleHover}
+                            onMouseLeave={handleHoverExit}
+                        >
+                            {/* Card Background Image - Stable & Visible */}
+                            {module.image && (
+                                <div className="absolute inset-0 z-0 opacity-50">
+                                    <img
+                                        src={module.image}
+                                        alt={module.title}
+                                        className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-500"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+                                </div>
+                            )}
 
-                    {/* Section 02: Cosmology */}
-                    <Link
-                        href="/module/cosmology"
-                        className="hud-card group block cursor-pointer hover:bg-white/[0.02] transition-all duration-300"
-                        onMouseEnter={handleHover}
-                        onMouseLeave={handleHoverExit}
-                    >
-                        <div className="corner-brkt corner-brkt-tl" />
-                        <h3 className="text-holo-cyan text-[10px] mb-4 tracking-[0.4em] uppercase opacity-60">Module 02 // Origins</h3>
-                        <h2 className="text-3xl font-black mb-4 group-hover:text-white transition-colors break-words">Cosmology</h2>
-                        <p className="text-xs text-gray-400 font-light leading-relaxed mb-6">
-                            Understanding the origin, evolution, and eventual fate of the universe. From big bang nucleosynthesis to large-scale structure formation.
-                        </p>
-                        <div className="text-[9px] font-semibold tracking-wider text-white/30 group-hover:text-white/60 uppercase transition-colors">
-                            Access Databases {"//"}
-                        </div>
-                    </Link>
+                            <div className="relative z-10">
+                                <div className="corner-brkt corner-brkt-tl" />
+                                <h3 className="text-holo-cyan text-[10px] mb-4 tracking-[0.4em] uppercase opacity-60">
+                                    {module.category}
+                                </h3>
+                                <h2 className="text-3xl font-black mb-4 group-hover:text-white transition-colors break-words">
+                                    {module.title}
+                                </h2>
+                                <p className="text-xs text-gray-400 font-light leading-relaxed mb-6">
+                                    {module.description}
+                                </p>
+                                <div className="text-[9px] font-semibold tracking-wider text-white/30 group-hover:text-white/60 uppercase transition-colors">
+                                    Access Databases {"//"}
+                                </div>
+                            </div>
+                        </Link>
+                    ))}
 
-                    {/* Section 03: Physics */}
-                    <Link
-                        href="/module/physics"
-                        className="hud-card group block cursor-pointer hover:bg-white/[0.02] transition-all duration-300"
-                        onMouseEnter={handleHover}
-                        onMouseLeave={handleHoverExit}
-                    >
-                        <div className="corner-brkt corner-brkt-tl" />
-                        <h3 className="text-holo-cyan text-[10px] mb-4 tracking-[0.4em] uppercase opacity-60">Module 03 // Mechanics</h3>
-                        <h2 className="text-3xl font-black mb-4 group-hover:text-white transition-colors break-words">Quantum Physics</h2>
-                        <p className="text-xs text-gray-400 font-light leading-relaxed mb-6">
-                            The study of nature at the smallest scales: atomic and subatomic levels. Exploring entanglement, superposition, and wave-particle duality.
-                        </p>
-                        <div className="text-[9px] font-semibold tracking-wider text-white/30 group-hover:text-white/60 uppercase transition-colors">
-                            Access Databases {"//"}
-                        </div>
-                    </Link>
-
-                    {/* Section 04: Astrobiology */}
-                    <Link
-                        href="/module/astrobiology"
-                        className="hud-card group block cursor-pointer hover:bg-white/[0.02] transition-all duration-300"
-                        onMouseEnter={handleHover}
-                        onMouseLeave={handleHoverExit}
-                    >
-                        <div className="corner-brkt corner-brkt-tl" />
-                        <h3 className="text-holo-cyan text-[10px] mb-4 tracking-[0.4em] uppercase opacity-60">Module 04 // Frontiers</h3>
-                        <h2 className="text-3xl font-black mb-4 group-hover:text-white transition-colors break-words">Astrobiology</h2>
-                        <p className="text-xs text-gray-400 font-light leading-relaxed mb-6">
-                            The search for life beyond Earth. Investigating exoplanet habitability and the biochemical requirements for life in extreme environments.
-                        </p>
-                        <div className="text-[9px] font-semibold tracking-wider text-white/30 group-hover:text-white/60 uppercase transition-colors">
-                            Access Databases {"//"}
-                        </div>
-                    </Link>
-
-                    {/* Section 05: Galaxies */}
-                    <Link
-                        href="/module/galaxies"
-                        className="hud-card group block cursor-pointer hover:bg-white/[0.02] transition-all duration-300"
-                        onMouseEnter={handleHover}
-                        onMouseLeave={handleHoverExit}
-                    >
-                        <div className="corner-brkt corner-brkt-tl" />
-                        <h3 className="text-holo-cyan text-[10px] mb-4 tracking-[0.4em] uppercase opacity-60">Module 05 // Structures</h3>
-                        <h2 className="text-3xl font-black mb-4 group-hover:text-white transition-colors break-words">Galactic Systems</h2>
-                        <p className="text-xs text-gray-400 font-light leading-relaxed mb-6">
-                            Investigating the formation and dynamics of massive star systems. From the Milky Way to distant quasars and galaxy clusters.
-                        </p>
-                        <div className="text-[9px] font-semibold tracking-wider text-white/30 group-hover:text-white/60 uppercase transition-colors">
-                            Access Databases {"//"}
-                        </div>
-                    </Link>
-
-                    {/* Section 06: Black Holes */}
-                    <Link
-                        href="/module/blackholes"
-                        className="hud-card group block cursor-pointer hover:bg-white/[0.02] transition-all duration-300"
-                        onMouseEnter={handleHover}
-                        onMouseLeave={handleHoverExit}
-                    >
-                        <div className="corner-brkt corner-brkt-tl" />
-                        <h3 className="text-holo-cyan text-[10px] mb-4 tracking-[0.4em] uppercase opacity-60">Module 06 // Singularity</h3>
-                        <h2 className="text-3xl font-black mb-4 group-hover:text-white transition-colors break-words">Black Holes</h2>
-                        <p className="text-xs text-gray-400 font-light leading-relaxed mb-6">
-                            Exploring the most extreme regions of spacetime. Investigating event horizons, hawking radiation, and the physics of gravitational collapse.
-                        </p>
-                        <div className="text-[9px] font-semibold tracking-wider text-white/30 group-hover:text-white/60 uppercase transition-colors">
-                            Access Databases {"//"}
-                        </div>
-                    </Link>
-
-                    {/* Section 07: Exoplanets */}
-                    <Link
-                        href="/module/exoplanets"
-                        className="hud-card group block cursor-pointer hover:bg-white/[0.02] transition-all duration-300"
-                        onMouseEnter={handleHover}
-                        onMouseLeave={handleHoverExit}
-                    >
-                        <div className="corner-brkt corner-brkt-tl" />
-                        <h3 className="text-holo-cyan text-[10px] mb-4 tracking-[0.4em] uppercase opacity-60">Module 07 // Worlds</h3>
-                        <h2 className="text-3xl font-black mb-4 group-hover:text-white transition-colors break-words">Exoplanetary Discovery</h2>
-                        <p className="text-xs text-gray-400 font-light leading-relaxed mb-6">
-                            Cataloging confirmed worlds outside our star system. Analyzing transit data, atmospheric composition, and candidates for habitability.
-                        </p>
-                        <div className="text-[9px] font-semibold tracking-wider text-white/30 group-hover:text-white/60 uppercase transition-colors">
-                            Access Databases {"//"}
-                        </div>
-                    </Link>
-
-                    {/* Section 08: Dark Matter */}
-                    <Link
-                        href="/module/darkmatter"
-                        className="hud-card group block cursor-pointer hover:bg-white/[0.02] transition-all duration-300"
-                        onMouseEnter={handleHover}
-                        onMouseLeave={handleHoverExit}
-                    >
-                        <div className="corner-brkt corner-brkt-tl" />
-                        <h3 className="text-holo-cyan text-[10px] mb-4 tracking-[0.4em] uppercase opacity-60">Module 08 // Dark Systems</h3>
-                        <h2 className="text-3xl font-black mb-4 group-hover:text-white transition-colors break-words">Dark Matter & Energy</h2>
-                        <p className="text-xs text-gray-400 font-light leading-relaxed mb-6">
-                            Probing the invisible components of the cosmos. Analyzing gravitational lensing, lambda-CDM models, and accelerated cosmic expansion.
-                        </p>
-                        <div className="text-[9px] font-semibold tracking-wider text-white/30 group-hover:text-white/60 uppercase transition-colors">
-                            Access Databases {"//"}
-                        </div>
-                    </Link>
-
-                    {/* Section 09: String Theory */}
-                    <Link
-                        href="/module/stringtheory"
-                        className="hud-card group block cursor-pointer hover:bg-white/[0.02] transition-all duration-300"
-                        onMouseEnter={handleHover}
-                        onMouseLeave={handleHoverExit}
-                    >
-                        <div className="corner-brkt corner-brkt-tl" />
-                        <h3 className="text-holo-cyan text-[10px] mb-4 tracking-[0.4em] uppercase opacity-60">Module 09 // M-Theory</h3>
-                        <h2 className="text-3xl font-black mb-4 group-hover:text-white transition-colors break-words">String Theory</h2>
-                        <p className="text-xs text-gray-400 font-light leading-relaxed mb-6">
-                            Investigating the fundamental building blocks of reality. Exploring 11 dimensions, supersymmetry, and the unification of physics.
-                        </p>
-                        <div className="text-[9px] font-semibold tracking-wider text-white/30 group-hover:text-white/60 uppercase transition-colors">
-                            Access Databases {"//"}
-                        </div>
-                    </Link>
-
-                    {/* Section 10: Stellar Evolution */}
-                    <Link
-                        href="/module/stellar"
-                        className="hud-card group block cursor-pointer hover:bg-white/[0.02] transition-all duration-300"
-                        onMouseEnter={handleHover}
-                        onMouseLeave={handleHoverExit}
-                    >
-                        <div className="corner-brkt corner-brkt-tl" />
-                        <h3 className="text-holo-cyan text-[10px] mb-4 tracking-[0.4em] uppercase opacity-60">Module 10 // Engines</h3>
-                        <h2 className="text-3xl font-black mb-4 group-hover:text-white transition-colors break-words">Stellar Evolution</h2>
-                        <p className="text-xs text-gray-400 font-light leading-relaxed mb-6">
-                            The life cycles of celestial bodies. From main sequence fusion to the spectacular deaths of supernovas and neutron stars.
-                        </p>
-                        <div className="text-[9px] font-semibold tracking-wider text-white/30 group-hover:text-white/60 uppercase transition-colors">
-                            Access Databases {"//"}
-                        </div>
-                    </Link>
-
-                    {/* Section 11: Thermodynamics */}
-                    <div className="hud-card group opacity-50 cursor-not-allowed">
-                        <div className="corner-brkt corner-brkt-tl" />
-                        <h3 className="text-gray-500 text-[10px] mb-4 tracking-[0.4em] uppercase">Module 11 // Constants</h3>
-                        <h2 className="text-3xl font-black mb-4">Thermodynamics</h2>
-                        <p className="text-sm text-gray-600 font-light leading-relaxed mb-8">
-                            The fundamental laws governing heat, energy, and work. Exploring entropy, absolute zero, and the energetic limits of the universe.
-                        </p>
-                        <div className="text-[10px] font-bold tracking-widest text-gray-600 uppercase">
-                            Signal Offline
+                    {/* Section 11: Thermodynamics (Offline) */}
+                    <div className="module-card group opacity-50 cursor-not-allowed relative overflow-hidden bg-black/40 border border-white/10">
+                        <div className="relative z-10">
+                            <div className="corner-brkt corner-brkt-tl" />
+                            <h3 className="text-gray-500 text-[10px] mb-4 tracking-[0.4em] uppercase">Section 11 // Constants</h3>
+                            <h2 className="text-2xl md:text-3xl font-black mb-4">Thermodynamics</h2>
+                            <p className="text-sm text-gray-600 font-light leading-relaxed mb-8">
+                                The fundamental laws governing heat, energy, and work. Exploring entropy, absolute zero, and the energetic limits of the universe.
+                            </p>
+                            <div className="text-[10px] font-bold tracking-widest text-gray-600 uppercase">
+                                Signal Offline
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -351,5 +237,3 @@ export const Home = () => {
         </div>
     );
 };
-
-

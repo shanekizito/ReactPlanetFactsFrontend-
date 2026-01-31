@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { PLANETS as LINKS } from "../../types/Planets";
+import { PLANETS as EXPLORATION_LINKS } from "../../types/Planets";
+import { scienceModules } from "../../data/moduleData";
 import "./navbar.css";
 
 export const Navbar = () => {
@@ -12,51 +13,76 @@ export const Navbar = () => {
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full z-[100] pointer-events-none">
-      <nav className="h-16 floating-header flex justify-between items-center pointer-events-auto relative">
-        <div className="corner-brkt corner-brkt-tl scale-75" />
-        <div className="corner-brkt corner-brkt-tr scale-75" />
-        <div className="corner-brkt corner-brkt-bl scale-75" />
-        <div className="corner-brkt corner-brkt-br scale-75" />
+    <header className="fixed top-6 left-0 w-full z-[1000] flex justify-center px-[1%] pointer-events-none">
+      <div className="simple-navbar-container">
+        {/* Corner Decorations */}
+        <span className="nav-corner corner-tl"></span>
+        <span className="nav-corner corner-tr"></span>
+        <span className="nav-corner corner-bl"></span>
+        <span className="nav-corner corner-br"></span>
 
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-1.5 opacity-80">
-            <div className="w-[1px] h-4 bg-nasa-red animate-pulse" />
-            <div className="w-[1px] h-3 bg-holo-cyan animate-pulse [animation-delay:0.2s]" />
-          </div>
-          <Link href="/">
-            <h1 className="text-xs font-black tracking-[1em] uppercase hover:text-holo-cyan transition-colors duration-500 cursor-pointer drop-shadow-[0_0_8px_rgba(0,242,255,0.2)]">
-              ORBITAL
-            </h1>
-          </Link>
-        </div>
+        <Link href="/" className="flex items-center gap-4 no-underline pointer-events-auto shrink-0">
+          <img
+            src="/src/assets/logo.png"
+            alt="Orbital Logo"
+            className="w-8 h-8 object-contain"
+          />
+          <span className="text-sm font-black tracking-[0.5em] uppercase text-white">
+            ORBITAL
+          </span>
+        </Link>
+
+        {/* Desktop Links */}
+        <nav className="hidden lg:flex items-center gap-8 pointer-events-auto">
+          {EXPLORATION_LINKS.map((link) => (
+            <Link
+              key={link}
+              href={`/planet/${link}`}
+              className={`desktop-nav-link ${location === `/planet/${link}` ? "active" : ""}`}
+            >
+              {link}
+            </Link>
+          ))}
+        </nav>
 
         <button
           onClick={handleClick}
-          className={`p-2 rounded flex flex-col gap-1 relative z-20 lg:hidden ${openLinks ? "cross" : ""}`}
+          className={`hamburger-trigger pointer-events-auto lg:hidden ${openLinks ? "active" : ""}`}
+          aria-label="Menu"
         >
-          <div className="h-0.5 w-6 bg-white transition-all"></div>
-          <div className="h-0.5 w-6 bg-white transition-all"></div>
-          <div className="h-0.5 w-6 bg-white transition-all"></div>
+          <div className="line"></div>
+          <div className="line"></div>
+          <div className="line"></div>
         </button>
 
-        <ul id="navbar-menu" className={`navbar-menu ${openLinks ? "open" : ""}`}>
-          {LINKS.map((link, i) => (
-            <li key={i} className="relative group">
-              <Link
-                href={`/planet/${link}`}
-                className={`text-xl lg:text-[9px] font-black uppercase tracking-[0.2em] lg:tracking-[0.4em] transition-all duration-500 ${location === `/planet/${link}` ? "text-nasa-red lg:text-white" : "text-white/60 hover:text-white"
-                  }`}
-                onClick={() => setOpenLinks(false)}
-              >
-                {link.toUpperCase()}
-              </Link>
-              <div className={`hidden lg:block absolute -bottom-1 left-0 h-[1.5px] bg-nasa-red transition-all duration-500 ${location === `/planet/${link}` ? "w-full opacity-80" : "w-0 opacity-0 group-hover:w-1/2 group-hover:opacity-40"
-                }`} />
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
+        <nav className={`simple-mission-menu ${openLinks ? "open" : ""}`}>
+          <div className="menu-inner-container">
+            <div className="menu-decoration-header">
+              <span className="menu-meta">SYSTEM_CMD // NAVIGATION_DRAWER</span>
+              <div className="h-px w-full bg-white/10 mt-2"></div>
+            </div>
+
+            <ul className="menu-list">
+              {EXPLORATION_LINKS.map((link, idx) => (
+                <li key={link} className="menu-item-wrapper">
+                  <span className="menu-item-index">0{idx + 1}</span>
+                  <Link
+                    href={`/planet/${link}`}
+                    className={`menu-link-item ${location === `/planet/${link}` ? "active" : ""}`}
+                    onClick={() => setOpenLinks(false)}
+                  >
+                    {link}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            <div className="menu-footer">
+              <span className="menu-meta">MISSION_ORBITAL // v1.0.4</span>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
   );
 };

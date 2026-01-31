@@ -17,14 +17,55 @@ export interface ScienceModule {
     researchers: { name: string; contribution: string }[];
     equipment: { name: string; purpose: string }[];
     status: "Operational" | "Awaiting Telemetry" | "Signal Offline";
+    image: string;
 }
 
 export const scienceModules: Record<string, ScienceModule> = {
+    "planetary-systems": {
+        id: "planetary-systems",
+        title: "Planetary Systems",
+        category: "Section 01 // Discovery",
+        status: "Operational",
+        image: "/assets/exoplanets.png",
+        description: "In-depth telemetry and geological analysis of the eight major planets.",
+        longDescription: "A planetary system consists of a set of gravitationally bound non-stellar objects in or out of orbit around a star or star system. Our solar system contains 8 planets, 5 dwarf planets, and millions of smaller bodies.",
+        facts: [
+            { label: "Planets", value: "8 Major" },
+            { label: "Moons", value: "290+ Known" },
+            { label: "Age", value: "4.6 Billion Years" }
+        ],
+        theories: [
+            { title: "Nebular Hypothesis", description: "Formation from a giant cloud of molecular gas and dust." },
+            { title: "Nice Model", description: "Migration of giant planets shaping the early solar system." }
+        ],
+        history: [
+            { event: "Galileo's Telescope", year: "1610" },
+            { event: "Uranus Discovery", year: "1781" },
+            { event: "Pluto Reclassification", year: "2006" }
+        ],
+        researchers: [
+            { name: "Nicolaus Copernicus", contribution: "Proposed the heliocentric model." },
+            { name: "Johannes Kepler", contribution: "Formulated laws of planetary motion." },
+            { name: "Carl Sagan", contribution: "Popularized planetary science." }
+        ],
+        equipment: [
+            { name: "Voyager Probes", purpose: "Grand Tour of the outer planets." },
+            { name: "Cassini", purpose: "Exploration of Saturn and its rings." },
+            { name: "Juno", purpose: "Studying Jupiter's composition and gravity." }
+        ],
+        sections: [
+            { id: "formation", title: "Solar System Formation", content: "The solar system formed 4.6 billion years ago from the gravitational collapse of a giant interstellar molecular cloud." },
+            { id: "terrestrial", title: "Terrestrial Planets", content: "Mercury, Venus, Earth, and Mars are primarily composed of rock and metal, with solid surfaces and few moons." },
+            { id: "gas-giants", title: "Gas Giants", content: "Jupiter and Saturn are massive planets composed mainly of hydrogen and helium, lacking a defined solid surface." },
+            { id: "ice-giants", title: "Ice Giants", content: "Uranus and Neptune contain heavier elements like oxygen, carbon, nitrogen, and sulfur, often referred to as 'ices'." }
+        ]
+    },
     cosmology: {
         id: "cosmology",
         title: "Cosmology",
         category: "Section 01 // Deep Space",
         status: "Operational",
+        image: "/assets/cosmology.png",
         description: "The study of the origins, evolution, and eventual fate of the universe.",
         longDescription: "Cosmology explores the universe on the largest scales. It investigates how the universe began—from the Big Bang to the current expansion driven by dark energy.",
         facts: [
@@ -62,6 +103,7 @@ export const scienceModules: Record<string, ScienceModule> = {
         title: "Quantum Physics",
         category: "Section 02 // Particle Mechanics",
         status: "Operational",
+        image: "/assets/quantumphysics.png",
         description: "The study of nature at the smallest scales: atomic and subatomic levels.",
         longDescription: "Quantum mechanics reveals a world where particles don't have definite positions until measured. It is the foundation of all modern technology.",
         facts: [
@@ -97,6 +139,7 @@ export const scienceModules: Record<string, ScienceModule> = {
         title: "Astrobiology",
         category: "Section 03 // Biological Frontiers",
         status: "Operational",
+        image: "/assets/astrobiology.png",
         description: "The study of life in the universe and the conditions for it to emerge.",
         longDescription: "Astrobiology combines biology and astronomy to search for signs of life on other worlds, from Mars to icy moons like Europa.",
         facts: [
@@ -132,6 +175,7 @@ export const scienceModules: Record<string, ScienceModule> = {
         title: "Galactic Systems",
         category: "Section 04 // Macro Systems",
         status: "Operational",
+        image: "/assets/galacticsystems.png",
         description: "Investigating the formation and dynamics of massive star systems.",
         longDescription: "Galaxies are gravitationally bound systems of stars, remnants, gas, dust, and dark matter, categorized by their visual morphology.",
         facts: [
@@ -167,6 +211,7 @@ export const scienceModules: Record<string, ScienceModule> = {
         title: "Black Holes",
         category: "Section 05 // Gravitational Anomalies",
         status: "Operational",
+        image: "/assets/blackholes.png",
         description: "Regions of spacetime where gravity is so strong that nothing, including light, can escape.",
         longDescription: "Black holes are formed from the remnants of massive stars. Their existence was predicted by general relativity and has since been proven through the observation of their effects on surrounding matter.",
         facts: [
@@ -203,6 +248,7 @@ export const scienceModules: Record<string, ScienceModule> = {
         title: "Exoplanets",
         category: "Section 06 // Stellar Neighbors",
         status: "Operational",
+        image: "/assets/exoplanets.png",
         description: "Planets that orbit stars outside our solar system.",
         longDescription: "The discovery of exoplanets has revolutionized our understanding of the universe, revealing a diversity of worlds far beyond what we imagined in our own solar system.",
         facts: [
@@ -239,6 +285,7 @@ export const scienceModules: Record<string, ScienceModule> = {
         title: "Dark Systems",
         category: "Section 07 // Invisible Universe",
         status: "Operational",
+        image: "/assets/darkmatter.png",
         description: "The mysterious substances that make up 95% of the universe's energy density.",
         longDescription: "Dark matter provides the gravitational glue for galaxies, while dark energy drives the accelerated expansion of space. Together, they challenge every fundamental theory of physics.",
         facts: [
@@ -275,6 +322,7 @@ export const scienceModules: Record<string, ScienceModule> = {
         title: "String Theory",
         category: "Section 08 // Multi-Dimensions",
         status: "Operational",
+        image: "/assets/stringtheory.png",
         description: "The theoretical framework where particles are replaced by one-dimensional strings.",
         longDescription: "String theory aims to be the 'Theory of Everything,' unifying general relativity and quantum mechanics by postulating that the universe has up to 11 dimensions.",
         facts: [
@@ -309,6 +357,7 @@ export const scienceModules: Record<string, ScienceModule> = {
         title: "Stellar Evolution",
         category: "Section 09 // Nuclear Engines",
         status: "Operational",
+        image: "/assets/stellarevolution.png",
         description: "The life cycles of stars, from nebular birth to supernova collapse.",
         longDescription: "Stars are the foundries of the universe, forging all elements heavier than lithium through nuclear fusion before ending as dwarfs, neutron stars, or black holes.",
         facts: [

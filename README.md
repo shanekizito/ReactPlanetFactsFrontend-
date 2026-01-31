@@ -7,42 +7,42 @@ A stunning, interactive space exploration platform featuring professional 3D vis
 ![Three.js](https://img.shields.io/badge/Three.js-3D-orange)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 
+<br />
+
+<div align="center">
+  <h1>📸 Mission Gallery</h1>
+  <br />
+  <img src="assets/screenshots/orbital-01.png" alt="Artemis Mission Hero" width="100%" style="border-radius: 10px; box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);" />
+  <br /><br />
+  <div style="display: flex; gap: 10px; justify-content: center;">
+    <img src="assets/screenshots/orbital-02.png" alt="Earth Surface Geometry" width="48%" style="border-radius: 10px;" />
+    <img src="assets/screenshots/orbital-04.png" alt="Mercury Thermal Analysis" width="48%" style="border-radius: 10px;" />
+  </div>
+  <br />
+  <img src="assets/screenshots/orbital-03.png" alt="Module Hub Research Matrix" width="100%" style="border-radius: 10px;" />
+</div>
+
+<br />
+
 ## ✨ Features
 
+### 📡 NASA Mission Control Data Streams
+Real-time integration with specialized NASA endpoints for authentic scientific data:
+- **NASA DONKI Feed**: Real-time solar weather (flares) and CME data.
+- **NeoWS API**: Real-time Near Earth Object tracking and hazard analysis.
+- **TechTransfer Patents**: Dynamic stream of patented NASA innovations.
+- **NASA Image Library**: Live search and retrieval of historical mission archives.
+- **Exoplanet Archive**: Remote telemetry from confirmed extrasolar worlds.
+
 ### 🌍 Interactive 3D Planet
-- Professional-grade planet visualization with custom GLSL shaders
-- Fresnel atmospheric glow effects
-- Dynamic cloud layer with subtle distortion
-- Real-time rotation and lighting
-- 3-point lighting setup (key, rim, fill)
+- **Vibrant Shaders**: High-fidelity GLSL shaders with Fresnel atmospheric glow.
+- **Dynamic Clouds**: Animated, distorted cloud layers for realistic orbital viewing.
+- **Mission HUD**: Corner-decorated glass overlays for planet-specific data.
 
-### 🌌 Cosmic Background
-- **8,000 stars** with mouse parallax interaction
-- Animated shooting stars/meteors
-- Vibrant nebula clouds with floating animation
-- **1,000 interactive particles** responding to mouse movement
-- Additive blending for realistic glow effects
-
-### 📚 Scientific Modules
-10 comprehensive modules covering:
-- Planetary Systems
-- Cosmology
-- Quantum Physics
-- Astrobiology
-- Galactic Systems
-- Black Holes
-- Exoplanetary Discovery
-- Dark Matter & Energy
-- String Theory
-- Stellar Evolution
-
-### 🎨 Premium UI/UX
-- Clean, professional typography
-- Subtle hover animations
-- Gradient text effects
-- Responsive design (mobile, tablet, desktop)
-- Optimized text wrapping (no word-breaking)
-- HUD-style technical overlays
+### 🎨 Premium Glass UI
+- **Sub-pixel Glass-morphism**: Translucent, blurred navigation bars with saturate filters.
+- **Themed Accents**: Cyan (`00f2ff`) and NASA Red (`#fc3d21`) visual rhythm.
+- **Responsive Drawer**: Cinematic mobile menu with scale-in animations and mission indices.
 
 ## 🚀 Tech Stack
 
@@ -105,11 +105,11 @@ src/
 - **High Polygon Count**: 128 segments for smooth appearance
 - **MeshDistortMaterial**: Animated cloud layer
 
-### Performance Optimizations
-- Efficient particle rendering with PointMaterial
-- Frustum culling disabled for consistent star rendering
-- Additive blending for performance-friendly glows
-- Optimized re-renders with React.memo and useMemo
+### Performance & Data Management
+- **Intelligent Caching Layer**: In-memory response storage in `nasaService` for instant repeat visits.
+- **Parallel Data Fetching**: Concurrent `Promise.allSettled` streams for "instant-load" planet views.
+- **Adaptive Rendering**: 60fps performance through efficient particle and shader management.
+- **LOD Management**: Optimized polygon counts for planetary spheres and star fields.
 
 ### Typography & Readability
 - No word-breaking (`word-break: keep-all`)

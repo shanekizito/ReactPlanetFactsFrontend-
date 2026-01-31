@@ -1,8 +1,13 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRoute, Link, Redirect } from "wouter";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { scienceModules } from "../../data/moduleData";
+import { nasaService } from "../../services/nasaService";
+import { Canvas } from "@react-three/fiber";
+import { AsteroidBelt } from "../../components/AsteroidBelt/AsteroidBelt";
+import { VisualErrorBoundary } from "../../components/VisualErrorBoundary/VisualErrorBoundary";
+import { Suspense } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10,9 +15,49 @@ export const ModuleView = () => {
     const [, params] = useRoute("/module/:id");
     const module = scienceModules[params?.id || ""];
     const containerRef = useRef<HTMLDivElement>(null);
+    const [liveData, setLiveData] = useState<any>(null);
+    const [innovationData, setInnovationData] = useState<any>(null);
+    const [archiveData, setArchiveData] = useState<any>(null);
 
     useEffect(() => {
         window.scrollTo(0, 0);
+
+        const fetchModuleData = async () => {
+            // Initiate all requests immediately
+            const promises = [
+                // Live Data (Specific to ID)
+                (async () => {
+                    if (params?.id === 'neo') {
+                        const today = new Date().toISOString().split('T')[0];
+                        const data = await nasaService.getNEOFeed(today);
+                        setLiveData({ type: 'neo', data: data.near_earth_objects[today] });
+                    } else if (params?.id === 'solar-weather') {
+                        const data = await nasaService.getSolarWeather();
+                        setLiveData({ type: 'solar', data: data.slice(0, 5) });
+                    } else if (params?.id === 'exoplanets') {
+                        const data = await nasaService.getExoplanets();
+                        setLiveData({ type: 'exoplanet', data: data.slice(0, 5) });
+                    }
+                })(),
+                // Innovation Data
+                (async () => {
+                    const tech = await nasaService.getTechTransfer();
+                    setInnovationData(tech.results?.slice(0, 4));
+                })(),
+                // Archive Data
+                (async () => {
+                    const archives = await nasaService.searchLibrary(module?.title || "Space");
+                    setArchiveData(archives.collection.items.slice(0, 6));
+                })()
+            ];
+
+            try {
+                await Promise.allSettled(promises);
+            } catch (err) {
+                console.error("Critical error in parallel fetch:", err);
+            }
+        };
+        fetchModuleData();
     }, [params?.id]);
 
     useEffect(() => {
@@ -78,7 +123,26 @@ export const ModuleView = () => {
     };
 
     return (
-        <div ref={containerRef} className="relative min-h-screen px-4 md:px-16 py-12">
+        <div ref={containerRef} className="relative min-h-screen px-4 md:px-16 py-12 overflow-hidden">
+            {/* Dynamic Background Image */}
+            {/* Dynamic Background Image Banner */}
+            {module.image && (
+                <div
+                    className="absolute left-0 right-0 h-[60vh] z-0 overflow-hidden pointer-events-none"
+                    style={{ top: '-16px' }}
+                >
+                    <img
+                        src={module.image}
+                        alt={module.title}
+                        className="w-full h-full object-cover object-center opacity-80 scale-110"
+                    />
+                    {/* Gradient Overlay for Text Readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#000308] via-[#000308]/60 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#000308] via-transparent to-[#000308]" />
+                    <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#000308] to-transparent" />
+                </div>
+            )}
+
             <div className="data-stream" />
             <div className="lens-flare opacity-10" />
 
@@ -148,16 +212,87 @@ export const ModuleView = () => {
                         <section className="module-section hud-card">
                             <div className="corner-brkt corner-brkt-tl" />
                             <div className="corner-brkt corner-brkt-tr" />
-                            <div className="space-y-8">
-                                <span className="text-[10px] font-bold text-holo-cyan tracking-[0.5em] uppercase">// Executive Briefing</span>
-                                <p className="text-2xl md:text-3xl font-light leading-relaxed text-blue-50/90 italic">
-                                    "{module.description}"
-                                </p>
-                                <p className="text-gray-400 font-light leading-relaxed">
-                                    {module.longDescription}
-                                </p>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                                <div className="space-y-8">
+                                    <span className="text-[10px] font-bold text-holo-cyan tracking-[0.5em] uppercase">// Executive Briefing</span>
+                                    <p className="text-2xl md:text-3xl font-light leading-relaxed text-blue-50/90 italic">
+                                        "{module.description}"
+                                    </p>
+                                    <p className="text-gray-400 font-light leading-relaxed">
+                                        {module.longDescription}
+                                    </p>
+                                </div>
+                                {params?.id === 'neo' && (
+                                    <div className="h-[300px] w-full relative bg-black/20 rounded-lg overflow-hidden border border-white/5">
+                                        <div className="absolute top-4 left-4 z-10 text-[8px] font-mono text-nasa-red uppercase tracking-widest animate-pulse">
+                                            LIVE RADAR // GPU ACCELERATED
+                                        </div>
+                                        <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+                                            <Suspense fallback={null}>
+                                                <VisualErrorBoundary fallback={null}>
+                                                    <ambientLight intensity={0.5} />
+                                                    <pointLight position={[10, 10, 10]} intensity={1} />
+                                                    <AsteroidBelt count={1000} />
+                                                </VisualErrorBoundary>
+                                            </Suspense>
+                                        </Canvas>
+                                    </div>
+                                )}
                             </div>
                         </section>
+
+                        {/* Heritage & Innovation Hub Sections (NASA Endpoints) */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 my-16">
+                            {/* Innovation Lab (TechTransfer) */}
+                            <section id="innovation" className="module-section hud-card overflow-hidden !bg-white/[0.01]">
+                                <div className="corner-brkt corner-brkt-tl" />
+                                <div className="relative z-10 space-y-8">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] font-bold text-holo-cyan tracking-[0.5em] uppercase font-mono">// Innovation Lab</span>
+                                        <div className="px-2 py-1 bg-nasa-red text-white text-[7px] font-black tracking-widest rounded-sm animate-pulse-fast">LIVE TECH_TRANSFER STREAM</div>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {innovationData?.map((item: any, i: number) => (
+                                            <div key={i} className="p-4 bg-white/[0.02] border border-white/5 rounded hover:border-holo-cyan transition-colors group">
+                                                <h4 className="text-[10px] font-bold text-white mb-1 uppercase tracking-wider line-clamp-1">{item[2]}</h4>
+                                                <p className="text-[9px] text-gray-500 font-light line-clamp-2 italic group-hover:text-gray-300 transition-colors">
+                                                    {item[3]}
+                                                </p>
+                                                <div className="mt-2 text-[8px] font-mono text-holo-cyan/40">REF: {item[1]} // CLASS: {item[5]}</div>
+                                            </div>
+                                        ))}
+                                        {!innovationData && <div className="text-[10px] font-mono text-white/20 animate-pulse">[ SCANNING_TECHNOLOGY_REGISTRY... ]</div>}
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Mission Heritage Archive (Library) */}
+                            <section id="archive" className="module-section hud-card overflow-hidden !bg-white/[0.01]">
+                                <div className="corner-brkt corner-brkt-tr" />
+                                <div className="relative z-10 space-y-8">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-[10px] font-bold text-nasa-red tracking-[0.5em] uppercase font-mono">// Heritage Archive</span>
+                                        <div className="px-2 py-1 bg-holo-cyan/20 border border-holo-cyan text-holo-cyan text-[7px] font-black tracking-widest rounded-sm">LIVE NASA LIBRARY FEED</div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {archiveData?.map((item: any, i: number) => (
+                                            <div key={i} className="relative aspect-square bg-black rounded overflow-hidden border border-white/5 group">
+                                                <img
+                                                    src={item.links?.[0]?.href}
+                                                    alt="Mission Archive"
+                                                    className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-700 group-hover:scale-110"
+                                                />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-3 flex flex-col justify-end">
+                                                    <div className="text-[8px] font-mono text-white truncate">{item.data?.[0]?.title}</div>
+                                                    <div className="text-[7px] font-mono text-nasa-red">{item.data?.[0]?.date_created?.split('T')[0]}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {!archiveData && <div className="col-span-2 text-[10px] font-mono text-white/20 animate-pulse text-center py-12">[ INDEXING_LOCAL_STORAGE... ]</div>}
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
 
                         {/* Subsections Briefing */}
                         <div className="space-y-12">
@@ -201,18 +336,51 @@ export const ModuleView = () => {
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                {/* Theories */}
+                                {/* Theories / Live Data */}
                                 <div className="module-section hud-card overflow-hidden">
                                     <div className="tech-grid absolute inset-0 opacity-10" />
                                     <div className="relative z-10 space-y-8">
-                                        <span className="text-[10px] font-bold text-nasa-red tracking-[0.5em] uppercase font-mono">// Theoretical Frameworks</span>
-                                        <div className="space-y-6">
-                                            {module.theories.map((theory, i) => (
-                                                <div key={i} className="border-l-2 border-white/10 pl-6 hover:border-holo-cyan transition-colors">
-                                                    <h4 className="font-bold text-sm mb-2 uppercase tracking-wider">{theory.title}</h4>
-                                                    <p className="text-xs text-gray-400 font-light leading-relaxed">{theory.description}</p>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-[10px] font-bold text-nasa-red tracking-[0.5em] uppercase font-mono">// {liveData ? 'Live Data Stream' : 'Theoretical Frameworks'}</span>
+                                            {liveData && (
+                                                <div className="px-2 py-0.5 bg-nasa-red text-white text-[7px] font-black tracking-widest rounded-sm animate-pulse-fast">
+                                                    REAL-TIME NASA TELEMETRY
                                                 </div>
-                                            ))}
+                                            )}
+                                        </div>
+                                        <div className="space-y-6">
+                                            {liveData?.type === 'neo' ? (
+                                                liveData.data.map((item: any, i: number) => (
+                                                    <div key={i} className="border-l-2 border-holo-cyan pl-6">
+                                                        <h4 className="font-bold text-sm mb-1 uppercase tracking-wider">{item.name}</h4>
+                                                        <p className="text-[10px] text-gray-400 font-light">
+                                                            Diameter: {item.estimated_diameter.meters.estimated_diameter_max.toFixed(2)}m //
+                                                            Hazardous: {item.is_potentially_hazardous_asteroid ? 'YES' : 'NO'}
+                                                        </p>
+                                                    </div>
+                                                ))
+                                            ) : liveData?.type === 'solar' ? (
+                                                liveData.data.map((item: any, i: number) => (
+                                                    <div key={i} className="border-l-2 border-nasa-red pl-6">
+                                                        <h4 className="font-bold text-sm mb-1 uppercase tracking-wider">Flare Class: {item.classType}</h4>
+                                                        <p className="text-[10px] text-gray-400 font-light">Peak: {new Date(item.peakTime).toLocaleString()} // Location: {item.sourceLocation}</p>
+                                                    </div>
+                                                ))
+                                            ) : liveData?.type === 'exoplanet' ? (
+                                                liveData.data.map((item: any, i: number) => (
+                                                    <div key={i} className="border-l-2 border-white/20 pl-6">
+                                                        <h4 className="font-bold text-sm mb-1 uppercase tracking-wider">{item.pl_name}</h4>
+                                                        <p className="text-[10px] text-gray-400 font-light">Orbital Period: {item.pl_orbper} Days // Star Temp: {item.st_teff}K</p>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                module.theories.map((theory, i) => (
+                                                    <div key={i} className="border-l-2 border-white/10 pl-6 hover:border-holo-cyan transition-colors">
+                                                        <h4 className="font-bold text-sm mb-2 uppercase tracking-wider">{theory.title}</h4>
+                                                        <p className="text-xs text-gray-400 font-light leading-relaxed">{theory.description}</p>
+                                                    </div>
+                                                ))
+                                            )}
                                         </div>
                                     </div>
                                 </div>

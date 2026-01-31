@@ -31,7 +31,10 @@
 }
 
 .module-card {
-    @apply glass p-8 relative overflow-hidden transition-all duration-500 hover:bg-opacity-[0.03] flex flex-col;
+    @apply glass p-8 relative overflow-hidden flex flex-col;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: background-color 0.3s ease;
 }
 
 /* Hero Typography */
@@ -135,4 +138,12 @@
     3% {
         transform: translate(0);
     }
+}
+
+.module-card h2 {
+    @apply text-white font-black leading-tight mb-4;
+    font-size: clamp(1.25rem, 4vw, 1.875rem);
+    letter-spacing: -0.02em !important;
+    text-transform: uppercase;
+    word-break: break-word;
 }

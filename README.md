@@ -1,4 +1,4 @@
-# ORBITAL - Space Exploration Hub
+# ORBITAL - A Space Exploration Hub
 
 A stunning, interactive space exploration platform featuring professional 3D visualizations, scientific modules, and real-time cosmic effects.
 

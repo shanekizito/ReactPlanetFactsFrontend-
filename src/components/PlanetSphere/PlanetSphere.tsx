@@ -1,6 +1,6 @@
-import React, { useRef, useMemo } from 'react';
-import { useFrame, useLoader } from '@react-three/fiber';
-import { Sphere, MeshDistortMaterial } from '@react-three/drei';
+import { useRef, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { Sphere, MeshDistortMaterial, useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
 interface PlanetSphereProps {
@@ -26,9 +26,7 @@ export const PlanetSphere = ({
     const glowRef = useRef<THREE.Mesh>(null);
 
     // Optimized texture loading with CORS fix and performance enhancements
-    const texture = textureUrl ? useLoader(THREE.TextureLoader, textureUrl, (loader) => {
-        loader.setCrossOrigin('anonymous');
-    }) : null;
+    const texture = textureUrl ? useTexture(textureUrl) : null;
 
     // Optimize texture for faster rendering
     if (texture) {
@@ -96,7 +94,7 @@ export const PlanetSphere = ({
     return (
         <group>
             {/* Main planet body with advanced material */}
-            <Sphere ref={planetRef} args={[5.0, 128, 128]}>
+            <Sphere ref={planetRef} args={[5.0, 64, 64]}>
                 <meshStandardMaterial
                     map={texture}
                     color={texture ? "#ffffff" : color}
@@ -109,7 +107,7 @@ export const PlanetSphere = ({
             </Sphere>
 
             {/* Dynamic cloud layer with subtle distortion */}
-            <Sphere ref={cloudsRef} args={[5.06, 64, 64]}>
+            <Sphere ref={cloudsRef} args={[5.06, 48, 48]}>
                 <MeshDistortMaterial
                     color="#ffffff"
                     transparent
@@ -123,10 +121,10 @@ export const PlanetSphere = ({
             {/* Atmospheric glow with custom shader (fresnel effect) */}
             {showAtmosphere && (
                 <>
-                    <Sphere ref={atmosphereRef} args={[5.5, 64, 64]} material={atmosphereMaterial} />
+                    <Sphere ref={atmosphereRef} args={[5.5, 48, 48]} material={atmosphereMaterial} />
 
                     {/* Subtle outer glow ring */}
-                    <Sphere ref={glowRef} args={[5.65, 32, 32]}>
+                    <Sphere ref={glowRef} args={[5.65, 24, 24]}>
                         <meshBasicMaterial
                             color={atmosphereColor}
                             transparent

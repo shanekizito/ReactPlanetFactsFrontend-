@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
+import logo from "../../assets/logo.png";
 import { PLANETS as EXPLORATION_LINKS } from "../../types/Planets";
 import { scienceModules } from "../../data/moduleData";
 import "./navbar.css";
@@ -23,7 +24,7 @@ export const Navbar = () => {
 
         <Link href="/" className="flex items-center gap-4 no-underline pointer-events-auto shrink-0">
           <img
-            src="/src/assets/logo.png"
+            src={logo}
             alt="Orbital Logo"
             className="w-8 h-8 object-contain"
           />
